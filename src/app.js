@@ -22,4 +22,11 @@ app.get('/contracts', getProfile, async (req, res) => {
     res.json(contracts)
 })
 
+app.get('/jobs/unpaid', getProfile, async (req, res) => {
+    const { Job } = req.app.get('models')
+    const jobs = await Job.findAllUnpaidByActiveContractAndProfile(req.profile.id)
+    if (!jobs || jobs.length === 0) return res.status(404).end()
+    res.json(jobs)
+})
+
 module.exports = app;

@@ -87,6 +87,28 @@ Contract.init(
 );
 
 class Job extends Sequelize.Model {
+    static findAllUnpaidByActiveContractAndProfile(profileId) {
+        return Job.findAll({
+            where: {
+                paid: true,
+            },
+            include: {
+                model: Contract,
+                required: true,
+                where: {
+                    status: 'in_progress',
+                    [Op.and]: [
+                        {
+                            [Op.or]: [
+                                { ContractorId: profileId },
+                                { ClientId: profileId },
+                            ],
+                        },
+                    ],
+                }
+            }
+        })
+    }
 }
 
 Job.init(
