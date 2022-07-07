@@ -7,8 +7,6 @@ app.use(bodyParser.json());
 app.set('sequelize', sequelize)
 app.set('models', sequelize.models)
 
-const { Op } = require('sequelize')
-
 app.get('/contracts/:id', getProfile, async (req, res) => {
     const { Contract } = req.app.get('models')
     const { id } = req.params
@@ -17,5 +15,11 @@ app.get('/contracts/:id', getProfile, async (req, res) => {
     res.json(contract)
 })
 
+app.get('/contracts', getProfile, async (req, res) => {
+    const { Contract } = req.app.get('models')
+    const contracts = await Contract.findAllNotTerminatedByProfile(req.profile.id)
+    if (!contracts || contracts.length === 0) return res.status(404).end()
+    res.json(contracts)
+})
 
 module.exports = app;

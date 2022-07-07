@@ -52,6 +52,22 @@ class Contract extends Sequelize.Model {
             },
         })
     }
+
+    static findAllNotTerminatedByProfile(profileId) {
+        return Contract.findAll({
+            where: {
+                status: { [Op.ne]: 'terminated' },
+                [Op.and]: [
+                    {
+                        [Op.or]: [
+                            { ContractorId: profileId },
+                            { ClientId: profileId },
+                        ],
+                    },
+                ],
+            },
+        })
+    }
 }
 
 Contract.init(
