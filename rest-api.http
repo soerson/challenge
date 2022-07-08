@@ -1,0 +1,4 @@
+### 04. Pay for job
+POST http://localhost:3001/jobs/2/pay
+Content-Type: application/json
+profile_id: 1

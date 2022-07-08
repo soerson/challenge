@@ -7,6 +7,38 @@ const sequelize = new Sequelize({
 });
 
 class Profile extends Sequelize.Model {
+    static async payForJob(job) {
+        const jobId = job.id
+        const clientId = job.Contract.ClientId
+        const clientBalance = job.Contract.Client.balance
+        const contractorId = job.Contract.ContractorId
+        const contractorBalance = job.Contract.Contractor.balance
+        const amount = job.price
+
+
+        return await sequelize.transaction(async transaction => {
+            try {
+                await Promise.all([
+                    Profile.update(
+                        { balance: clientBalance - amount },
+                        { where: { id: clientId }, transaction },
+                    ),
+                    Profile.update(
+                        { balance: contractorBalance + amount },
+                        { where: { id: contractorId }, transaction },
+                    ),
+                    Job.update(
+                        { paid: true },
+                        { where: { id: jobId }, transaction },
+                    ),
+                ])
+                return true
+            } catch (e) {
+                return false
+            }
+
+        })
+    }
 }
 
 Profile.init(
@@ -105,8 +137,45 @@ class Job extends Sequelize.Model {
                             ],
                         },
                     ],
-                }
-            }
+                },
+            },
+        })
+    }
+
+    static findJobToBePaid(jobId, profileId) {
+        return Job.findOne({
+            where: {
+                id: jobId,
+                [Op.and]: {
+                    [Op.or]: [
+                        { paid: false },
+                        { paid: null },
+                    ],
+                },
+            },
+            include: {
+                model: Contract,
+                required: true,
+                where: {
+                    /**
+                     * this is not mentioned in a description
+                     * but there is a comment that a contract is active if status: in_progress
+                     * so decided to add it here as there is no much reason to pay for
+                     * a not active contract
+                     */
+                    status: 'in_progress',
+                },
+                include: [{
+                    model: Profile,
+                    as: 'Client',
+                    required: true,
+                    where: { id: profileId },
+                }, {
+                    model: Profile,
+                    as: 'Contractor',
+                    required: true,
+                }],
+            },
         })
     }
 }
