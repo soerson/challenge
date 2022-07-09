@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { sequelize } = require('./model')
 const { getProfile } = require('./middleware/getProfile')
+const { validateAmount } = require('./middleware/validateAmount');
 const app = express();
 app.use(bodyParser.json());
 app.set('sequelize', sequelize)
@@ -42,5 +43,23 @@ app.get('/jobs/unpaid', getProfile, async (req, res) => {
     if (!jobs || jobs.length === 0) return res.status(404).end()
     res.json(jobs)
 })
+
+
+app.post('/balance/deposit/:userId',
+    validateAmount,
+    getProfile,
+    async (req, res) => {
+        const { Profile } = req.app.get('models')
+        const profileId = req.profile.id
+        const amount = req.amount
+        const user = await Profile.findOne({ id: profileId })
+        if (user.balance * 0.25 < amount) {
+            res.status(400).send('Too high amount')
+        }
+
+        await user.update({ balance: user.balance + amount })
+        req.send(true)
+
+    })
 
 module.exports = app;

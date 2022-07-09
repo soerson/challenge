@@ -1,4 +1,14 @@
-### 04. Pay for job
+### 04. Pay for job 2 as Profile 1
 POST http://localhost:3001/jobs/2/pay
+Content-Type: application/json
+profile_id: 1
+
+### 05. Deposit to Profile 3
+POST http://localhost:3001/balance/deposit/3?amount=100
+Content-Type: application/json
+profile_id: 1
+
+### 05. Deposit too much to Profile 3
+POST http://localhost:3001/balance/deposit/3?amount=300
 Content-Type: application/json
 profile_id: 1
