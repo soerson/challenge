@@ -12,3 +12,8 @@ profile_id: 1
 POST http://localhost:3001/balance/deposit/3?amount=300
 Content-Type: application/json
 profile_id: 1
+
+### 05. Bad Request
+POST http://localhost:3001/balance/deposit/3
+Content-Type: application/json
+profile_id: 1

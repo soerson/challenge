@@ -58,7 +58,7 @@ app.post('/balance/deposit/:userId',
         }
 
         await user.update({ balance: user.balance + amount })
-        req.send(true)
+        res.send(true)
 
     })
 

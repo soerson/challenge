@@ -1,16 +1,23 @@
-const validateAmount = (req, res, next) => {
-    const amount = parseInt(req.query.amount);
-    if (!amount) {
-        res.status(400).send('Amount is required')
-        return
-    }
-    if (amount < 0) {
-        res.status(400).send('Amount must be positive')
-        return
-    }
+const Ajv = require('ajv')
+const { requestValidator } = require('./requestValidator');
+const ajv = new Ajv()
 
-    req.amount = amount
-    next()
-};
+const querySchema = {
+    type: 'object',
+    properties: {
+        query: {
+            type: 'object',
+            properties: {
+                amount: { type: 'number', minimum: 0 }
+            },
+            required: ['amount'],
+            additionalProperties: false
+        },
+    },
+    required: ['query'],
+    additionalProperties: true
+}
+
+const validateAmount = requestValidator(querySchema)
 
 module.exports = { validateAmount };
